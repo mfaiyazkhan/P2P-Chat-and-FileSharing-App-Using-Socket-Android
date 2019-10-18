@@ -19,6 +19,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -34,13 +36,14 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 public class MainActivity extends AppCompatActivity {
+    Context context;
     EditText ip;
     EditText port;
     EditText portText;
     Button connectButton;
     Button showIPtextId;
     String showIPaddress;
-    Snackbar snackbar;
+    boolean WIFI;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,22 +57,27 @@ public class MainActivity extends AppCompatActivity {
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!WIFI){
+                    showToast("Not Connected !!! Try to reconnect.");
+                }
                 if(ip.length()==0 || port.length()==0 || portText.length()==0){
                     if(ip.length()==0){
-                        ip.setError("Enter Receiver's ip address");
+                        ip.setError("Receiver's ip address can't be empty");
                     }
-//                    else if(Patterns.EMAIL_ADDRESS.matcher()){
-//
-//                    }
                     if(port.length()==0){
-                        port.setError("Enter Receiver's port No.");
+                        port.setError("Receiver's port No. can't be empty");
                     }
                     if(portText.length()==0){
-                        portText.setError("Enter your port No.");
+                        portText.setError("your port No. can't be empty");
                     }
                     if(ip.length()==0 && port.length()==0 && portText.length()==0){
-                        showToast();
+                        String s = "All fields can't be empty!!!";
+                        showToast(s);
                     }
+                }
+                else if(!Patterns.IP_ADDRESS.matcher(ip.getText()).matches()){
+                    String s = "Enter a Valid IP Address";
+                    showToast(s);
                 }
                 else{
                     String info = getInfo();
@@ -84,13 +92,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void reconnect(View view){
+        networkDetect();
+    }
 
 
-    void showToast(){
+
+
+    void showToast(String s){
         Toast toast = new Toast(getApplicationContext());
         View view = LayoutInflater.from(this).inflate(R.layout.toast_layout, null);
         TextView toastTextView = view.findViewById(R.id.toast_error);
-        toastTextView.setText("All fields are required!!");
+        toastTextView.setText(s);
         toast.setView(view);
         toast.setDuration(Toast.LENGTH_LONG);
 
@@ -107,8 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void networkDetect(){
-        boolean WIFI = false;
-        boolean MOBILE = false;
+        WIFI = false;
 
         ConnectivityManager CM = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo[] networkInfo = CM.getAllNetworkInfo();
@@ -117,10 +129,6 @@ public class MainActivity extends AppCompatActivity {
             if (netInfo.getTypeName().equalsIgnoreCase("WIFI")) //checking if connected network is wifi
                 if (netInfo.isConnected())
                     WIFI = true;
-
-            if (netInfo.getTypeName().equalsIgnoreCase("MOBILE")) //checking if connected network is mobile using data
-                if (netInfo.isConnected())
-                    MOBILE = true;
         }
 
         if(WIFI == true){
@@ -128,31 +136,12 @@ public class MainActivity extends AppCompatActivity {
             showIPtextId.setText("IP ADDRESS : "+showIPaddress);
         }
 
-        if(MOBILE == true) {
-            showIPaddress = GetDeviceipMobileData();
-            showIPtextId.setText("IP ADDRESS : "+showIPaddress);
+        else{
+            showIPtextId.setText("Not Connected !!!\nPress again to reconnect ");
         }
+
     }
 
-
-    //This method is getting the device ip address if connected using mobile data
-    public String GetDeviceipMobileData(){
-        try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
-                 en.hasMoreElements();) {
-                NetworkInterface networkinterface = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = networkinterface.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress()) {
-                        return inetAddress.getHostAddress().toString();
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            Log.e("Current IP", ex.toString());
-        }
-        return null;
-    }
 
     //This method is getting the wifi ip address
     public String GetDeviceipWiFiData(){

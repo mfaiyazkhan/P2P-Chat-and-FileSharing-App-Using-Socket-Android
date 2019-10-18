@@ -16,6 +16,8 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Calendar;
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -57,16 +59,17 @@ public class Server extends Thread {
             e.printStackTrace();
         }
     }
-    public class HandleClient extends AsyncTask<Socket,Void,String>{
+    public class HandleClient extends AsyncTask<Socket,Void, Message>{
         String sentence;
         FileOutputStream fos = null;
         BufferedOutputStream bos = null;
+        Message message;
         @Override
-        protected String doInBackground(Socket... sockets) {
+        protected Message doInBackground(Socket... sockets) {
             try {
 
                  ObjectInputStream in = new ObjectInputStream(sockets[0].getInputStream());
-                 Message message = (Message) in.readObject();
+                 message = (Message) in.readObject();
 
                  sentence = message.getMessage();
                  Log.d("problem","R: " + sentence);
@@ -78,6 +81,7 @@ public class Server extends Thread {
                          directory.mkdirs();
                      }
                      FILE_TO_RECEIVE+=File.separator+message.getMessage();
+                     message.setImgDir(FILE_TO_RECEIVE);
                      byte [] mybytearray  = message.getMybytearray();
                      fos = new FileOutputStream(FILE_TO_RECEIVE);
                      bos = new BufferedOutputStream(fos);
@@ -99,23 +103,17 @@ public class Server extends Thread {
             catch(Exception e){
                 e.printStackTrace();
             }
-            return sentence ;
+            return message ;
         }
-        protected void onPostExecute(String result) {
-
-//            Log.d("problem", "onPostExecute:" + result);
+        protected void onPostExecute(Message result) {
 
             if(bgselected == 1){
                 bgselected = 0;
             }
             else {
-                messageArray.add(new Message("Received: " + result, 1));
-
-//            for(Message mssg: messageArray){
-//                String sst = mssg.getMessage();
-//                Log.d("problem","received             "+sst);
-//            }
-
+                result.setDate(Calendar.getInstance().getTime());
+                result.type=1;
+                messageArray.add(result);
                 messageList.setAdapter(mAdapter);
                 messageList.setSelection(messageList.getCount() - 1);
 

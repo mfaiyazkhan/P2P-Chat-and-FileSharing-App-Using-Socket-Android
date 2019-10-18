@@ -1,5 +1,6 @@
 package com.example.manug.peerchat;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -7,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,11 +38,12 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class ChatActivity extends AppCompatActivity {
 
     public String FILE_TO_SEND;
-    LinearLayout chatActivityLayout;
+    ConstraintLayout chatActivityLayout;
     String ipAddress,portNo;
     //public static String message="";
     EditText messageTextView;
@@ -55,11 +58,14 @@ public class ChatActivity extends AppCompatActivity {
     Intent fileManager;
     int BGID = 0;
     String bgColorCode;
+    String filename;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setBackgroundDrawableResource(R.drawable.background);
 
         if(savedInstanceState != null){
             Log.d("STATE",savedInstanceState.toString());
@@ -218,9 +224,10 @@ public class ChatActivity extends AppCompatActivity {
                     String path = getFilePathFromUri(uri);
                     //String path = getRealPathFromURI(this,uri);
                     fileSelected = 1;
-                    messageTextView.setText(path);
+                    filename = path.substring(path.lastIndexOf("/")+1);
+                    messageTextView.setText(filename);
                     FILE_TO_SEND = path;
-                    Log.d("problem", "onActivityResult: "+FILE_TO_SEND);
+                    Log.d("problem", "onActivityResult: "+FILE_TO_SEND+"  "+fileSelected);
                 }
         }
     }
@@ -259,18 +266,12 @@ public class ChatActivity extends AppCompatActivity {
         c.execute();
     }
 
-    public void setView(String s){
-        String str=responseTextView.getText().toString();
-        str=str+"\nReceived: "+s;
-        responseTextView.setText(str);
-    }
-    public class Client extends AsyncTask<Void,Void,String> {
+    public class Client extends AsyncTask<Void,Void,Message> {
         String msg = messageTextView.getText().toString();
         String path = FILE_TO_SEND;
-        public int isFile = fileSelected;
-
+        Message message;
         @Override
-        protected String doInBackground(Void... voids) {
+        protected Message doInBackground(Void... voids) {
             Log.d("problem", "fileSelected = "+fileSelected);
             try {
                 if(bgselected == 1) {
@@ -297,7 +298,7 @@ public class ChatActivity extends AppCompatActivity {
                     //Log.d("problem", "ip add "+ipadd+" "+portr);
                     Socket clientSocket = new Socket(ipadd, portr);
                     //Log.d("problem", "socket");
-                    Message message = new Message(msg, 0);
+                    message = new Message(msg, 0);
                     message.setBG();
 
                     Log.d("problem", "fileSelected = "+fileSelected);
@@ -319,7 +320,7 @@ public class ChatActivity extends AppCompatActivity {
                     //Log.d("problem", "ip add "+ipadd+" "+portr);
                     Socket clientSocket = new Socket(ipadd, portr);
                     //Log.d("problem", "socket");
-                    Message message = new Message(msg, 0);
+                    message = new Message(msg, 0);
 
                     Log.d("problem", "fileSelected = "+fileSelected);
 
@@ -342,7 +343,7 @@ public class ChatActivity extends AppCompatActivity {
                 }
                 else if(fileSelected == 1)
                 {
-                    String filename = path.substring(path.lastIndexOf("/")+1);
+
                     msg = filename;
                     Log.d("problem", "Real Path: " + path);
                     Log.d("problem", "Filename With Extension: " + filename);
@@ -374,35 +375,48 @@ public class ChatActivity extends AppCompatActivity {
                     bis = new BufferedInputStream(fis);
                     bis.read(mybytearray,0,mybytearray.length);
 
-                    Message message = new Message(msg, mybytearray, 0);
+                    message = new Message(msg, mybytearray, 0);
+
+                    message.setImgDir(FILE_TO_SEND);
+                    Log.d("Image", "Image Sending directory: "+message.imgDir);
+
+                    if((msg.contains("png") || msg.contains("jpg") || msg.contains("jpeg") || msg.contains("gif") ) ){
+                        message.setIsImage(true);
+                    }
+
+                    Log.d("Image", "Image Sending: "+FILE_TO_SEND);
 
                     ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                     out.writeObject(message);
                     out.flush();
                     clientSocket.close();
-
+                    Log.d("Image", "doInBackground: "+message.imgDir);
                 }
 
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
-            return msg;
+            return message;
         }
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(Message result) {
             if(bgselected == 1){
                 bgselected = 0;
             }
             else {
-                messageArray.add(new Message("Sent: " + result, 0));
+                messageArray.add(result);
+                result.setDate(Calendar.getInstance().getTime());
+                Log.d("Image", "onPostExecute Image Directory "+result.imgDir);
                 fileSelected = 0;
                 Log.d("problem", "onPostExecute: " + result);
                 message_List.setAdapter(mAdapter);
                 message_List.setSelection(message_List.getCount() - 1);
                 messageTextView.setText("");
+                filename="";
             }
         }
     }
+
 
 
     void setMessage(final Message msg)

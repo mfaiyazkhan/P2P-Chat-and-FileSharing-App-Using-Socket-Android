@@ -32,7 +32,9 @@
             android:textStyle="bold"
             android:text=""
             android:textAlignment="center"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:onClick="reconnect"
+            />
     </LinearLayout>
 
     <LinearLayout
