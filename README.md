@@ -38,13 +38,13 @@ requires the port number of the server of other user.
   6. Showed toast in various parts
 
 <h3> Contributions: </h3>
-Both contributed in project equally and supervised all parts and have clear knowledge about it.
+Both contributed in project equally and supervised all parts and have clear knowledge about it.</br>
 
-2016331001:
-  1.Showed Image in chat View
-  2.Showed time in messages
-2016331011:
-  1.Changed background
-  2.Saved chat messages
+2016331001:</br>
+  1.Showed Image in chat View</br>
+  2.Showed time in messages</br>
+2016331011:</br>
+  1.Changed background</br>
+  2.Saved chat messages</br>
   
 All other parts are done both by sharing.
