@@ -36,6 +36,7 @@ requires the port number of the server of other user.
   4. Sent and Receive time is shown
   5. Ip address of the device is displayed
   6. Showed toast in various parts
+  7. notification sound in message and file sending and receiving</br>
 
 <h3> Contributions: </h3>
 Both contributed in project equally and supervised all parts and have clear knowledge about it.</br>
