@@ -111,14 +111,14 @@ public class MainActivity extends AppCompatActivity {
         toast.show();
     }
 
+    //to get the IP and port address from the user from the user
     String getInfo(){
 
         String info = this.ip.getText().toString()+" "+this.port.getText().toString()+" "+this.portText.getText().toString();
         return info;
     }
 
-
-
+    //To show the IP and port address of the connected device from the router
     public void networkDetect(){
         WIFI = false;
 

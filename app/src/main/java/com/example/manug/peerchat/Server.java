@@ -1,10 +1,15 @@
 package com.example.manug.peerchat;
 
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedOutputStream;
@@ -24,6 +29,7 @@ import android.widget.Toast;
 
 import static com.example.manug.peerchat.ChatActivity.mAdapter;
 public class Server extends Thread {
+
     String bgColorCode;
     ChatActivity activity;
     ListView messageList;
@@ -39,6 +45,19 @@ public class Server extends Thread {
         this.activity = activity;
     }
     ServerSocket welcomeSocket=null;
+
+
+    void showToast(String s){
+        Toast toast = new Toast(activity.getBaseContext());
+        View view = LayoutInflater.from(activity.getBaseContext()).inflate(R.layout.filesavetoast, null);
+        TextView toastTextView = view.findViewById(R.id.toast_file_save);
+        toastTextView.setText(s);
+        toast.setView(view);
+        toast.setDuration(Toast.LENGTH_LONG);
+
+        toast.setGravity(Gravity.CENTER | Gravity.TOP, 0, 0);
+        toast.show();
+    }
 
     public String getBgColorCode() {
         return bgColorCode;
@@ -87,12 +106,44 @@ public class Server extends Thread {
                      bos = new BufferedOutputStream(fos);
                      bos.write(mybytearray);
                      bos.flush();
-                 }
 
-                 if(message.isBackground()){
+                     activity.runOnUiThread(new Runnable() {
+
+                         String saveFile = "Received file "+"saved in "+FILE_TO_RECEIVE;
+                         @Override
+                         public void run() {
+                             showToast(saveFile);
+                         }
+                     });
+
+                     Log.d("file", "isFile: " + FILE_TO_RECEIVE);
+
+
+                 }
+                 else if(message.isBackground()){
                      bgColorCode = message.getMessage();
                      bgselected = 1;
-                     activity.setMessage(message);
+
+                     activity.runOnUiThread(new Runnable() {
+                         @Override
+                         public void run() {
+                             if(message.getMessage().equals("@@bg1")) {
+                                 //Log.d("BACKGROUND", "setMessage: ");
+                                 activity.message_List.setBackgroundResource(R.drawable.background1);
+                             }
+                             else if(message.getMessage().equals("@@bg2")) {
+                                 activity.message_List.setBackgroundResource(R.drawable.background2);
+                             }
+                             else if(message.getMessage().equals("@@bg3")) {
+                                 activity.message_List.setBackgroundResource(R.drawable.background3);
+                             }
+                             else if(message.getMessage().equals("@@bg4")) {
+                                 activity.message_List.setBackgroundResource(R.drawable.background4);
+                             }
+                         }
+                     });
+
+                     //activity.setMessage(message);
                  }
 
 
@@ -110,18 +161,25 @@ public class Server extends Thread {
             if(bgselected == 1){
                 bgselected = 0;
             }
+            else if(result.getMessage().equals("")){
+                Log.d("save", "null message");
+            }
             else {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final MediaPlayer mp = MediaPlayer.create(activity.getBaseContext(), R.raw.insight);
+                        mp.start();
+                    }
+                });
                 result.setDate(Calendar.getInstance().getTime());
                 result.type=1;
                 messageArray.add(result);
                 messageList.setAdapter(mAdapter);
                 messageList.setSelection(messageList.getCount() - 1);
 
-                Log.d("problem", "Received: " + result);
-                for (Message mssg : messageArray) {
-                    String sst = mssg.getMessage();
-                    //Log.d("problem","              "+sst);
-                }
+                Log.d("file", "Received: " + result);
+
             }
         }
     }

@@ -1,9 +1,11 @@
 package com.example.manug.peerchat;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -72,6 +74,8 @@ public class ChatActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_chat);
 
+
+        //getting the information of the user from the main Activity
         Bundle bundle = getIntent().getExtras();
         if(bundle != null){
             String info = bundle.getString("ip&port");
@@ -79,10 +83,11 @@ public class ChatActivity extends AppCompatActivity {
             ipAddress = infos[0];
             portNo = infos[1];
             myport = Integer.parseInt(infos[2]);
-            Log.d("info",ipAddress+" "+portNo+" "+myport);
+            //Log.d("info",ipAddress+" "+portNo+" "+myport);
         }
 
 
+        //To add a custom toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -129,6 +134,7 @@ public class ChatActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //To make a dialog box from which the background can be selected
     private void openBackgroundAlertDialog() {
         final AlertDialog.Builder alert = new AlertDialog.Builder(ChatActivity.this);
         View mView = getLayoutInflater().inflate(R.layout.change_background_dialog, null);
@@ -144,7 +150,6 @@ public class ChatActivity extends AppCompatActivity {
 
         final AlertDialog alertDialog = alert.create();
         alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.setTitle("Disconnecting");
 
         btn_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,12 +212,15 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
+    //This is a listener to the select file button
     public void selectFileResponse(View view){
         fileManager = new Intent(Intent.ACTION_GET_CONTENT);
         fileManager.setType("*/*");
         startActivityForResult(fileManager,10);
     }
 
+
+    // To get the selected file path
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
@@ -257,6 +265,8 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void sendResponse(View view){
+        final MediaPlayer mp = MediaPlayer.create(this, R.raw.knob);
+        mp.start();
         Client c =new Client();
         c.execute();
     }
@@ -266,13 +276,14 @@ public class ChatActivity extends AppCompatActivity {
         c.execute();
     }
 
+    //client thread
     public class Client extends AsyncTask<Void,Void,Message> {
         String msg = messageTextView.getText().toString();
         String path = FILE_TO_SEND;
         Message message;
         @Override
         protected Message doInBackground(Void... voids) {
-            Log.d("problem", "fileSelected = "+fileSelected);
+           // Log.d("problem", "fileSelected = "+fileSelected);
             try {
                 if(bgselected == 1) {
 
@@ -290,19 +301,11 @@ public class ChatActivity extends AppCompatActivity {
                     }
 
                     String ipadd = ipAddress;
-                    //Log.d("problem", "ip add");
-
                     int portr = Integer.parseInt(portNo);
-                    //Log.d("problem", "port");
-
-                    //Log.d("problem", "ip add "+ipadd+" "+portr);
                     Socket clientSocket = new Socket(ipadd, portr);
-                    //Log.d("problem", "socket");
                     message = new Message(msg, 0);
                     message.setBG();
-
                     Log.d("problem", "fileSelected = "+fileSelected);
-
                     ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                     out.writeObject(message);
                     out.flush();
@@ -312,25 +315,14 @@ public class ChatActivity extends AppCompatActivity {
                 else if(fileSelected == 0)
                 {
                     String ipadd = ipAddress;
-                    //Log.d("problem", "ip add");
-
                     int portr = Integer.parseInt(portNo);
-                    //Log.d("problem", "port");
-
-                    //Log.d("problem", "ip add "+ipadd+" "+portr);
                     Socket clientSocket = new Socket(ipadd, portr);
-                    //Log.d("problem", "socket");
                     message = new Message(msg, 0);
-
-                    Log.d("problem", "fileSelected = "+fileSelected);
 
                     ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                     out.writeObject(message);
                     out.flush();
                     clientSocket.close();
-
-
-
 
 ////                    String ipadd = ipAddress;
 ////                    int portr = Integer.parseInt(portNo);
@@ -359,18 +351,8 @@ public class ChatActivity extends AppCompatActivity {
                     File myfile = new File(path);
                     Log.d("problem", "doInBackground2222: "+myfile+"   "+FILE_TO_SEND);
 
-                    if(myfile.exists())
-                        //'ll add a toast here!!!
-                        Log.d("problem", "Exist:   Selected file exists");
-                    else
-                        //Here also !!!
-                        Log.d("problem", "Exist:   Selected file doesn't exists");
-
                     byte [] mybytearray  = new byte [(int)myfile.length()];
-                    Log.d("byte", "doInBackground: "+mybytearray.length);
-//                    for(int i=0;i<mybytearray.length;i++){
-//                        Log.d("byte", "doInBackground: "+mybytearray[i]+" ");
-//                    }
+
                     fis = new FileInputStream(myfile);
                     bis = new BufferedInputStream(fis);
                     bis.read(mybytearray,0,mybytearray.length);
@@ -378,19 +360,18 @@ public class ChatActivity extends AppCompatActivity {
                     message = new Message(msg, mybytearray, 0);
 
                     message.setImgDir(FILE_TO_SEND);
-                    Log.d("Image", "Image Sending directory: "+message.imgDir);
+
 
                     if((msg.contains("png") || msg.contains("jpg") || msg.contains("jpeg") || msg.contains("gif") ) ){
                         message.setIsImage(true);
                     }
-
-                    Log.d("Image", "Image Sending: "+FILE_TO_SEND);
 
                     ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                     out.writeObject(message);
                     out.flush();
                     clientSocket.close();
                     Log.d("Image", "doInBackground: "+message.imgDir);
+
                 }
 
             }
@@ -403,13 +384,18 @@ public class ChatActivity extends AppCompatActivity {
             if(bgselected == 1){
                 bgselected = 0;
             }
+            else if(result.getMessage().equals("")){
+                Log.d("save", "null message");
+            }
             else {
                 messageArray.add(result);
                 result.setDate(Calendar.getInstance().getTime());
                 Log.d("Image", "onPostExecute Image Directory "+result.imgDir);
                 fileSelected = 0;
-                Log.d("problem", "onPostExecute: " + result);
+                //Log.d("problem", "onPostExecute: " + result);
                 message_List.setAdapter(mAdapter);
+
+                //to add auto scroll
                 message_List.setSelection(message_List.getCount() - 1);
                 messageTextView.setText("");
                 filename="";
@@ -417,29 +403,6 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-
-
-    void setMessage(final Message msg)
-    {
-
-                Log.d("background", "message = "+msg.getMessage());
-
-        if(msg.getMessage().equals("@@bg1")) {
-            Log.d("BACKGROUND", "setMessage: ");
-            //message_List.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
-            message_List.setBackgroundResource(R.drawable.background1);
-        }
-        else if(msg.getMessage().equals("@@bg2")) {
-            message_List.setBackgroundResource(R.drawable.background2);
-        }
-        else if(msg.getMessage().equals("@@bg3")) {
-            message_List.setBackgroundResource(R.drawable.background3);
-        }
-        else if(msg.getMessage().equals("@@bg4")) {
-            message_List.setBackgroundResource(R.drawable.background4);
-        }
-
-    }
 
     public void saveMessage(){
         Log.d("save", "message save = ");
@@ -454,10 +417,6 @@ public class ChatActivity extends AppCompatActivity {
         }
         FILE_TO_SAVE += File.separator+ipAddress+".txt";
 
-//        File root = this.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-//        File dir = new File(root.getAbsolutePath() +File.separator+ "download");
-//        dir.mkdirs();
-//        String kk=File.separator+ipAddress+".txt";
 
         File file = new File(FILE_TO_SAVE);
         try {
