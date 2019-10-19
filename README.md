@@ -32,7 +32,19 @@ requires the port number of the server of other user.
   
   1. The user can send <b>all types of files including images,pdf,docs etc.</b> using this app.
   2. The user can send bangla text messages and emojis also.
-
+  3. Exchanged Images can be viewed on the chat screen
+  4. Sent and Receive time is shown
+  5. Ip address of the device is displayed
+  6. Showed toast in various parts
 
 <h3> Contributions: </h3>
 Both contributed in project equally and supervised all parts and have clear knowledge about it.
+
+2016331001:
+  1.Showed Image in chat View
+  2.Showed time in messages
+2016331011:
+  1.Changed background
+  2.Saved chat messages
+  
+All other parts are done both by sharing.
