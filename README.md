@@ -39,7 +39,7 @@ requires the port number of the server of other user.
   7. notification sound in message and file sending and receiving</br>
 
 <h3> Contributions: </h3>
-Both contributed in project equally and supervised all parts and have clear knowledge about it.</br>
+Both contributed in project equally and supervised all parts.</br>
 </br>
 2016331001:</br>
   1.Showed Image in chat View</br>
