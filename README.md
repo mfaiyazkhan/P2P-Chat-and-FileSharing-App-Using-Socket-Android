@@ -48,4 +48,4 @@ Both contributed in project equally and supervised all parts and have clear know
   1.Changed background</br>
   2.Saved chat messages</br>
   </br>
-All other parts are done both by sharing.
+All other parts are done by both by sharing.
