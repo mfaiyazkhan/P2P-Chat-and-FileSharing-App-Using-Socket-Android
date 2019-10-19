@@ -39,12 +39,13 @@ requires the port number of the server of other user.
 
 <h3> Contributions: </h3>
 Both contributed in project equally and supervised all parts and have clear knowledge about it.</br>
-
+</br>
 2016331001:</br>
   1.Showed Image in chat View</br>
   2.Showed time in messages</br>
+  </br>
 2016331011:</br>
   1.Changed background</br>
   2.Saved chat messages</br>
-  
+  </br>
 All other parts are done both by sharing.
