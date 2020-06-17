@@ -38,15 +38,3 @@ requires the port number of the server of other user.
   6. Showed toast in various parts
   7. notification sound in message and file sending and receiving</br>
 
-<h3> Contributions: </h3>
-Both contributed in project equally and supervised all parts.</br>
-</br>
-2016331001:</br>
-  1.Showed Image in chat View</br>
-  2.Showed time in messages</br>
-  </br>
-2016331011:</br>
-  1.Changed background</br>
-  2.Saved chat messages</br>
-  </br>
-All other parts are done by both by sharing.
